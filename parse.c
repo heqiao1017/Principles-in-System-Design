@@ -1,3 +1,12 @@
+/*
+Write a program, called parseC, to parse a C program into tokens. 
+Pay special attention to identifiers (start with an alpha or an underscore), numbers (start with a digit), 
+string literals (start with a double quote, may contain escapes like \n or \t or \”), 
+character literals (start with a single quote), operators (+-*=&|^%!?><~), and other special symbols (#[]{};:). 
+You should recognize and discard program comments.  
+Input should be read from stdin and output should be written to stdout with one token per line.
+*/
+    
 #include <stdio.h>
 #include <ctype.h>
 #define LEXEMESIZE 100
