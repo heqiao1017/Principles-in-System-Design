@@ -1,3 +1,20 @@
+/*
+Write a C program, called execute, that reads a one line Bash command from the standard input and executes the program, 
+given in the first word of a line, passing in the arguments, given as the rest of the words on the command line.  
+You may use strtok() to parse the command into words, but you must build an array of c-strings for argv.  
+argv[0] must be the full path to the command, argv[1] will be the first argument and so on.  
+The program should search down the PATH variable to find the full path of the executable before running it.  
+strtok(), sprintf(), and stat() should be helpuf in constructing the full path to the command. 
+PATH will be in the list of environment variables in the third argument to main, envp.  
+You should call execve() with appropriate full path and argv you construct to run the command. Here are some sample runs:
+	echo /bin/echo hello world | execute
+echo which ls echo login | execute
+execute < my_command
+where my_command contains
+ls -lR /usr
+*/
+
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <errno.h>
