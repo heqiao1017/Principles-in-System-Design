@@ -1,3 +1,8 @@
+/*
+Write 10 of the library functions defined by string.h for working with c-strings as documented here http://www.tutorialspoint.com/c_standard_library/string_h.htm. http://www.codingunit.com/c-tutorial-strings-and-string-library-functions You are to write strlen, strcpy, strcat, strcmp, strncmp, strchr, strpbrk, strstr, strspn, strtok.  Write a C program to test your implementations of each of your string/memory functions from string.h.  Write at least three test cases per string function.  main can call each of the 10 test function (so it may be longer than 5 lines).  Write one test function for each string function that has at least three test cases.  These test function may also exceed the 5 line limit.  I started the main function for you here so use this as a start and follow my example for how to grow this for all 10 functions.
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 
