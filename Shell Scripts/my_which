@@ -1,0 +1,18 @@
+#!/bin/bash
+# This does the same thing as the Unix which command
+find_path=0
+echo $PATH
+for i in $*
+do
+	path=(`echo $PATH | tr ":" " "`)
+	for f in ${path[*]}
+	do
+		if [[ -x "$f/$i" ]] ; then
+			echo "$f/$i" 
+			find_path=1
+			break ;fi
+	done
+	if [[ $find_path<=0 ]] ; then
+		echo my_which $i cannot be found!;fi
+	find_path=0
+done

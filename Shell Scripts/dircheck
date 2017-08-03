@@ -1,0 +1,23 @@
+#!/bin/bash
+#
+for i in $*
+do
+	count_subdir=-1
+	count_file=0
+	echo -------------------------
+	echo IN DIR: $i
+	echo -------------------------
+	for f in `find $i`
+	do
+		if [[ -d $f ]]
+		then count_subdir=$(($count_subdir+1)) ; fi
+		if [[ -f $f ]]
+		then count_file=$(($count_file+1)) ; fi
+		if [[ ( -f $f ) && ( ! -s $f ) ]]
+		then echo FILE THAT ARE ZERO LENGTH: $f ; fi
+	done
+	echo COUNT OF SUBDIRECTORIES: $count_subdir
+	echo COUNT OF FILES: $count_file
+	echo -e TOTAL AMOUNT STORAGE OF $i IS: `du -s $i` "\n"
+done	
+

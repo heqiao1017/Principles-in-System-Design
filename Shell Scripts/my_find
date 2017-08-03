@@ -1,0 +1,148 @@
+#!/bin/bash
+
+#save the starting point dir into the stack
+file_stack=($1)
+
+name_option=0
+match_name=0
+type_option=0
+match_type=0
+print_option=0
+exec_option=0
+exec_line=""
+
+add_dir_files_to_stack(){
+	for entry in "$1"/*
+	do
+			file_stack[${#file_stack[*]}]="$entry"
+	done
+}
+
+reset_flag()
+{
+	name_option=0
+	match_name=0
+	type_option=0
+	match_type=0
+	print_option=0
+	exec_option=0
+	exec_line=""
+}
+
+check_if_name_match()
+{
+	#result_pattern=(`echo $1 | tr -d '*'`)
+	if [[ $2 =~ $1 ]]; then
+		match_name=1
+	elif [[ $1 ]];then
+		base=`basename $2`
+		if echo x"$1" | grep '*' > /dev/null
+		then
+			result_pattern=(`echo $1 | tr -d '*'`)
+			if [[ $base == *$result_pattern* ]]; then
+					match_name=1
+			fi
+		else
+			if [[ $base == $1 ]]; then
+					match_name=1
+			fi
+		fi
+	fi
+}
+
+check_if_type_match()
+{
+	if [[ $1 ]];then
+		if [[ $1 == "d" || $1=="f" ]];then
+			case $1 in
+				"d")
+					if [[ -d $2 ]];then 
+						match_type=1;fi
+					;;
+				"f")
+					if [[ -f $2 ]];then
+						match_type=1;fi
+					;;
+				*)
+			esac
+		fi
+	fi
+}
+
+
+print_and_exec()
+{
+	if [[ $print_option>0 ]];then
+		echo $1
+	fi
+
+	if [[ $exec_option>0 ]];then
+		exec_line=`echo $exec_line | sed -e s#{}#$1#g# `
+		$exec_line
+	fi
+}
+
+
+#do my find-------main program
+while [[ ${#file_stack[*]} > 0 ]]
+do
+	cur_file=${file_stack[-1]} #get the current file from the top of stack
+	unset file_stack[${#file_stack[*]}-1] #remove current file from the stack
+
+	if [[ -d $cur_file ]];then
+		add_dir_files_to_stack $cur_file
+	fi
+
+	reset_flag
+
+	#**************************************************************
+	#evaluate expression from left to right for cur_file
+	for (( i=2;i<=$#;i++ ))
+	do
+		case ${!i} in
+			"-name") 
+				name_option=1
+				i=$((i + 1))
+				check_if_name_match ${!i} $cur_file
+				;;
+			"-type")
+				type_option=1
+				i=$((i + 1))
+				check_if_type_match ${!i} $cur_file
+				;;
+			"-print")
+				print_option=1
+				;;
+			"-exec") 
+				exec_option=1
+				for (( i=$((i+1));i<$#;i++))
+				do
+					if [[ ${!i}!=";" ]];then 
+						exec_line+=${!i} 
+						exec_line+=" " 
+					fi
+				done
+				;;
+			*)
+		esac
+	done
+	#**************************************************************
+
+	#here do the job
+
+	#checking error
+	#if the name does not match the pattern for -name or 
+	#if the type does not match for the -type predicate, stop execucting this file
+	if [[ ( "$name_option" >0 && "$match_name" <=0 ) || ( "$type_option" >0 && "$match_type" <=0 ) ]]
+	then
+		#echo enter false condition
+		continue
+	fi
+
+	#here print or execute the current file by the result of evaluation
+	print_and_exec $cur_file
+	
+done
+
+
+
