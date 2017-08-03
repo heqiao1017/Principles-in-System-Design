@@ -1,3 +1,21 @@
+/*
+ UNIX I/O Exercise: The purposes of this assignment are (1) to become familiar with UNIX I/O system calls and (2) to see the difference in performance between C library functions and system calls.  The program you write should do the following.
+my_copy is a main program that prints out the time to copy the file using each of three methods.  The name of the input file and the name of the output file should come from the command line arguments to your program (via argv).
+Method 1: Implement a function that uses fopen(), fgetc() and fputc(), then fclose() to copy the input file to the output file one character at a time. Each loop iteration will read and write a single character but I/O will be buffered by the stdio library routines which make system calls read() and write() to fill or flush the stdio buffers.
+Method 2: Implement a function that uses the system calls open(), read() and write(), then close() to copy the input file to the output file one character at a time. Each loop iteration will read and write just a single character.  There will be no buffering because you will be making system calls to read and write each character.
+Method 3: Implement a function that uses the system calls open(), read() and write(), then close() to copy the input file to the output file one buffer at a time (the buffer should be of size "BUFSIZ", which is declared in the <stdio.h> include file and each read or write should write as many characters as possible per loop iteration up to BUFSIZ).
+Once these functions are implemented, test them out by having them perform their work N times each (where N is one of the command-line arguments - see last bullet below for details of arguments).  Display the amount of wallclock, user, and system time it takes for each of the three method functions to execute.
+Use a Timer to measure the performance of each of the three approaches to copying a file.  Use /usr/share/dict/linux.words for the input file to copy.  Here is a Timer you may use. There is an example of use at the bottom https://docs.google.com/document/d/1KY2DuvijtOKs7B4zlLK18lhBLdg1UDUtim8k5Bphudc/edit?usp=sharing  You must split this file into Timer.h and Timer.c as described in the comment at the top, then compile Timer.c with -c option to create Timer.o which you can link in with your program that uses the timer. Your program that uses the Timer must #include “Timer.h”
+Your program will take four arguments: argv[1] will be a number 1, 2, or 3 indicating which of the above methods your program should use to make the copy; argv[2] will be the input file name; argv[3] will be the output file name, and argv[4] will be the number of times to repeat the file copy (it should default to 1 if only three arguments are passed in). A given invocation of your program should make N copies using the method passed in for argv[1].  Ideally, the output should be just the time required to make the copy, but we are making N copies so it will also include the time to open and close the file for each copy.  To ensure you measure the entire N file copies, start the timer (with Timer_init()) right before you loop to make N copies and stop the timer just after you have made the Nth copy.  Print the wallclock, user, and system time (to stdout) after you have stopped the timer.  Examples of each call (using xyz for times)
+		$ my_copy 1 /usr/share/dict/linux.words output1 1
+wallclock x, user y, system time z (predict a moderate speed)
+		$ my_copy 2 /usr/share/dict/linux.words output2 1
+wallclock x, user y, system time z (predict a *really* slow speed)
+		$ my_copy 3 /usr/share/dict/linux.words output3 1
+wallclock x, user y, system time z (predict a really fast speed)
+*/
+
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <errno.h>
