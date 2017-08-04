@@ -1,0 +1,40 @@
+﻿ICS 53
+HW 8
+1. (10 pts) Write a correct Makefile for your programs below using default rules and appropriate variable settings.  Also define clean and strip.
+2. (90 pts): Write two client/server programs as follows:
+   1. (40 pts) Write an iterative server that provides a directory listing of a specified directory on the machine running the server. Write a client program that takes a hostname and a list of directory and file argument and does an ls -l on each of the files on the specified host.  Test it on /etc and /bin on odin.ics.uci.edu.  You can use your ls program written in HW3 as a subroutine to do the output but you must modify it to send its output directly to the socket.  It need not be recursive though, but if you leave it recursive, that is ok too. Alternatively, you could fork() and exec() /bin/ls with the right arguments and redirect the output to the socket (but then it really isn’t an iterative server anymore but you can have the main process wait() for the child process.).  If you do the latter, your parent must wait() for the child to finish the execution of /bin/ls.  For your report, test your program with the following command (assuming ls_client is your client program):
+ls_client odin.ics.uci.edu /etc /bin
+   1. (50 pts) Write a concurrent server that implements a remote copy of specific files into the current working directory (similar to how a web server delivers files when given “get” commands, but more like cp file .). Both the client and the server should use fork to create child processes to do the work of the file copy.  Write a client that takes a list of files that it will request from a server and copies, in parallel, each of the specified files into the current working directory with the same base name as the specified file.  Run three clients simultaneously but in separate directories (copies1, copies2, copies3) so you have three copies of the files over 500 blocks from /usr/share/java in your account. Also, you do not need to retain file protection across copies.  You might want to make them all rw-rw-rw-.  I have outlined what the server and what the client will do below:
+        EXAMPLE OF USE
+        $ P=54321
+        $ server $P &
+        $ cd copies1
+        $ client `hostname` $P `find /usr/share/java -size +500`
+        $ cd copies2
+        $ client `hostname` $P `find /usr/share/java -size +500`
+        $ cd copies3
+        $ client `hostname` $P `find /usr/share/java -size +500`
+        $ ls -s copies1 copies2 copies3
+HINTS
+        void copy_file(int from, int to) // from and to are the ints by open() or socket()
+        {
+                while ((n = read(from, buf, BUFSIZ)) > 0)
+                        if (write(to, buf, n) == -1) perror(“Write failed”);
+        }
+        server pseudo code
+        int server_socket = make_server_socket(port);
+           while (1) {
+                int client_socket = accept(server_socket, …);
+                     fork_child_copying_file_to_socket(client_socket);
+           }
+        client pseudo code
+        for (file, f, in argv[3…]) {
+        int client_socket = make_client_socket(host, port);
+                connect(client_socket, …);
+                fork_child_copying_file_from_socket(transfer_socket, f, base_name(f));
+        }
+Note each f will be a full path to a correct file.  base_name(f) should give just the file name at the end of the full path, e.g., if f is “/usr/share/java/file”, base_name(f) should just be “file”.  You may want to use strrchr() to write base_name().
+END HINTS
+   1. For each of these programs, choose a port that is the last five digits of your student ID.  If that does not work, modify the first digit until you find a port that is free.  Be sure your server and client use the same port number.  A good port number is the last three or four digits of your student ID number.
+NOTE: Periodically check your processes from the shell with ps aux, and kill any run-away processes with kill -9 pid.
+What to submit: Your programs and your Makefile.
